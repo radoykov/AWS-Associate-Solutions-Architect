@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #4e8cff, #6ad7ff);
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+    }
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+    p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <h1>Hello, world</h1>
+  <p>Your S3 static site is working.</p>
+  <script>
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", "https://7ja4aqwi6j.execute-api.eu-west-1.amazonaws.com/prod/hello", true);
+
+  xhr.setRequestHeader("Content-Type", "application/json");
+
+  xhr.onreadystatechange = () => {
+    if (xhr.readyState === XMLHttpRequest.DONE) {
+      if (xhr.status === 200) {
+        const results = JSON.parse(xhr.responseText);
+        console.log("results:", results);
+      } else {
+        console.log("Request failed with status:", xhr.status);
+      }
+    }
+  };
+
+  xhr.send(JSON.stringify({ message: "Hello from the browser" }));
+</script>
+
+</body>
+</html>
