@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+set -e
+
+# Validation checks for arguments
+if [ -z "$1" ]; then 
+    echo "Missing parameter: Provide VPC_ID as argument 1"
+    exit 1
+else 
+    export VPC_ID="$1"
+fi
+
+if [ -z "$2" ]; then 
+    echo "Missing parameter: Provide IGW_ID as argument 2"
+    exit 1
+else 
+    export IGW_ID="$2"
+fi
+
+if [ -z "$3" ]; then 
+    echo "Missing parameter: Provide SUBNET_ID as argument 3"
+    exit 1
+else 
+    export SUBNET_ID="$3"
+fi
+
+if [ -z "$4" ]; then 
+    echo "Missing parameter: Provide ASSOC_ID as argument 4"
+    exit 1
+else 
+    export ASSOC_ID="$4"
+fi
+
+if [ -z "$5" ]; then 
+    echo "Missing parameter: Provide RT_ID as argument 5"
+    exit 1
+else 
+    export RT_ID="$5"
+fi
+
+echo "Starting teardown process..."
+
+# 1. Disassociate subnet route table first (avoids dependency lock)
+echo "Disassociating route table..."
+aws ec2 disassociate-route-table --association-id $ASSOC_ID
+
+# 2. Detach the IGW
+echo "Detaching Internet Gateway..."
+aws ec2 detach-internet-gateway --internet-gateway-id $IGW_ID --vpc-id $VPC_ID
+
+# 3. Delete the IGW
+echo "Deleting Internet Gateway..."
+aws ec2 delete-internet-gateway --internet-gateway-id $IGW_ID
+
+# 4. Delete subnet
+echo "Deleting Subnet..."
+aws ec2 delete-subnet --subnet-id $SUBNET_ID
+
+# 5. Delete route table (Note: Main VPC route tables cannot be deleted manually; they delete with the VPC)
+echo "Attempting to delete Route Table..."
+aws ec2 delete-route-table --route-table-id $RT_ID 2>/dev/null || echo "Skipping main route table deletion (will delete with VPC)."
+
+# 6. Delete VPC
+echo "Deleting VPC..."
+aws ec2 delete-vpc --vpc-id $VPC_ID
+
+echo "Teardown complete!"
