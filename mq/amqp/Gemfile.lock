@@ -1,0 +1,50 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    amq-protocol (2.8.0)
+    bigdecimal (4.1.2)
+    bunny (3.1.0)
+      amq-protocol (~> 2.7)
+      logger (~> 1, >= 1.7)
+      sorted_set (~> 1, >= 1.0.2)
+    coderay (1.1.3)
+    io-console (0.8.2)
+    logger (1.7.0)
+    method_source (1.1.0)
+    ox (2.14.28)
+      bigdecimal (>= 3.0)
+    pry (0.16.0)
+      coderay (~> 1.1)
+      method_source (~> 1.0)
+      reline (>= 0.6.0)
+    rbtree (0.4.7)
+    reline (0.6.3)
+      io-console (~> 0.5)
+    sorted_set (1.1.0)
+      rbtree
+
+PLATFORMS
+  ruby
+  x86_64-linux
+
+DEPENDENCIES
+  bunny
+  ox
+  pry
+
+CHECKSUMS
+  amq-protocol (2.8.0) sha256=d06bbb341fa683459954f5a854388dac729171500116d81311cfbeaad83392ab
+  bigdecimal (4.1.2) sha256=53d217666027eab4280346fba98e7d5b66baaae1b9c3c1c0ffe89d48188a3fbd
+  bunny (3.1.0) sha256=fd09ea8be3fbb7fe4b1063f874094b444f762f2da1692b3341751af7c6d62f3c
+  coderay (1.1.3) sha256=dc530018a4684512f8f38143cd2a096c9f02a1fc2459edcfe534787a7fc77d4b
+  io-console (0.8.2) sha256=d6e3ae7a7cc7574f4b8893b4fca2162e57a825b223a177b7afa236c5ef9814cc
+  logger (1.7.0) sha256=196edec7cc44b66cfb40f9755ce11b392f21f7967696af15d274dde7edff0203
+  method_source (1.1.0) sha256=181301c9c45b731b4769bc81e8860e72f9161ad7d66dd99103c9ab84f560f5c5
+  ox (2.14.28) sha256=0b0bf5a1076a747a65d6ae99c6ffb1a9b03d021d08ae26d4e387f5040486b32d
+  pry (0.16.0) sha256=d76c69065698ed1f85e717bd33d7942c38a50868f6b0673c636192b3d1b6054e
+  rbtree (0.4.7) sha256=1efabbcb3fd5f12249c9c8a610a765074868164eed0c50c9db2531c00ed161cb
+  reline (0.6.3) sha256=1198b04973565b36ec0f11542ab3f5cfeeec34823f4e54cebde90968092b1835
+  sorted_set (1.1.0) sha256=bac01eb16b6bcfcdb7d732a28e87422be8b5c9fdcfeadbe9072682407524ee83
+
+BUNDLED WITH
+  4.0.16
