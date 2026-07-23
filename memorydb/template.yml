@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Deploy Amazon MemoryDB for Redis Cluster with Subnet Group, User, and ACL'
+
+Parameters:
+  SubnetId:
+    Type: String
+    Default: 'subnet-0e0fd31733061237d'
+    Description: 'The ID of the existing subnet to use for the MemoryDB cluster'
+  
+  ClusterPassword:
+    Type: String
+    NoEcho: true
+    Default: 'Testing12345678901234567890!'
+    Description: 'The password for the MemoryDB user (Minimum 16 characters)'
+
+Resources:
+  # 1. Create Subnet Group
+  MemoryDBSubnetGroup:
+    Type: 'AWS::MemoryDB::SubnetGroup'
+    Properties:
+      SubnetGroupName: 'mysubnetgroup'
+      Description: 'my subnet group'
+      SubnetIds:
+        - !Ref SubnetId
+
+  # 2. Create User
+  MemoryDBUser:
+    Type: 'AWS::MemoryDB::User'
+    Properties:
+      UserName: 'alex'
+      AccessString: 'on ~* &* +@all'
+      AuthenticationMode:
+        Type: 'password'
+        Passwords:
+          - !Ref ClusterPassword
+
+  # 3. Create ACL (Links the user)
+  MemoryDBACL:
+    Type: 'AWS::MemoryDB::ACL'
+    Properties:
+      ACLName: 'new-acl-1'
+      UserNames:
+        - !GetAtt MemoryDBUser.UserName
+
+  # 4. Create Cluster (Links the ACL and Subnet Group)
+  MemoryDBCluster:
+    Type: 'AWS::MemoryDB::Cluster'
+    Properties:
+      ClusterName: 'my-new-cluster'
+      NodeType: 'db.t4g.small'
+      ACLName: !Ref MemoryDBACL
+      SubnetGroupName: !Ref MemoryDBSubnetGroup
+
+Outputs:
+  ClusterEndpoint:
+    Description: 'The connection endpoint for the MemoryDB cluster'
+    Value: !GetAtt MemoryDBCluster.ClusterEndpoint.Address
