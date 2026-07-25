@@ -1,0 +1,66 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template to deploy an RDS Instance linked with existing VPC and SG.'
+
+Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: The VPC ID where the RDS instance should be deployed.
+
+  WebServerSGGroupId:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: Security Group ID of the web server to grant access to RDS.
+
+  Username:
+    Type: String
+    Default: dbadmin
+    Description: Master username for the database instance.
+
+  Subnets:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: At least two Subnet IDs in different Availability Zones for the DB Subnet Group.
+
+Resources:
+  # 1. Database Subnet Group (Required for RDS in a VPC)
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: "Subnets available for the RDS DB Instance"
+      SubnetIds: !Ref Subnets
+
+  # 2. RDS Security Group (Allows traffic on port 5432 from Web Server)
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Enable PostgreSQL access from WebServer Security Group"
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !Ref WebServerSGGroupId
+
+  # 3. RDS DB Instance with Automated Secrets Manager Generation
+  RDSInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: '20'
+      DBInstanceClass: db.t4g.micro
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      Engine: postgres
+      EngineVersion: '16.1'
+      MasterUsername: !Ref Username
+      ManageMasterUserPassword: true # Automatically generates password and stores it in Secrets Manager
+      VPCSecurityGroups:
+        - !Ref RDSSecurityGroup
+      PubliclyAccessible: false
+      DeleteAutomatedBackups: true
+      DeletionPolicy: Delete
+
+Outputs:
+  RdsSecretArn:
+    Description: "ARN of the Secret created in Secrets Manager holding DB Credentials"
+    Value: !GetAtt RDSInstance.MasterUserSecret.SecretArn
+  
+  RDSEndpoint:
+    Description: "JDBC connection endpoint for the database"
+    Value: !GetAtt RDSInstance.Endpoint.Address
